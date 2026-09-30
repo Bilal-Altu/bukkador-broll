@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>B-Roll-Demo · Bukkador Handpan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Farben von bukkador-handpan.de: Creme-Grund, olivgrüner Knopf, goldenes Mandala, Rinde aus dem Titelbild */
+:root {
+  --creme: #fff8ed;
+  --sand: #efe6d6;
+  --sand-2: #e2d5bd;
+  --olive: #5a694e;
+  --olive-tief: #414d37;
+  --gold: #d9c08a;
+  --rinde: #2b2520;
+  --grau: #736a5f;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--creme);
+  color: var(--rinde);
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+
+/* ---------- Seite ---------- */
+.seite { max-width: 1240px; margin: 0 auto; padding: 44px 24px 72px; }
+.kopf { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px 48px; margin-bottom: 28px; }
+.kopf small { display: block; margin-bottom: 12px; color: var(--olive); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.kopf h1 { margin: 0; font-size: clamp(28px, 4.2vw, 50px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
+.kopf p { margin: 0; max-width: 380px; color: var(--grau); font-size: 15px; font-weight: 500; line-height: 1.55; }
+
+.rahmen { position: relative; border-radius: 18px; overflow: hidden; background: #000; }
+.rahmen:fullscreen { display: grid; place-items: center; border-radius: 0; }
+.bild { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+.rahmen:fullscreen .bild { width: min(100vw, calc(100vh * 16 / 9)); }
+.bild iframe, #yt { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.fang { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; border: 0; background: transparent; cursor: pointer; }
+
+.start, .ende {
+  position: absolute; inset: 0; z-index: 4; display: grid; place-content: center; justify-items: center; gap: 14px;
+  background: rgba(43, 37, 32, .38);
+}
+.start[hidden], .ende[hidden] { display: none; }
+.knopf-gross {
+  display: inline-flex; align-items: center; gap: 14px; padding: 18px 30px 18px 24px; border: 0; border-radius: 999px;
+  background: var(--creme); color: var(--rinde); font-size: 18px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .6);
+}
+.knopf-gross:hover { background: #fff; }
+.knopf-gross svg { width: 22px; height: 22px; fill: var(--olive); }
+.start p, .ende p { margin: 0; color: var(--creme); font-size: 14px; font-weight: 600; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+.ende .reihe { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.knopf-flach { padding: 14px 22px; border: 1.5px solid rgba(255, 248, 237, .7); border-radius: 999px; background: transparent; color: var(--creme); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+.leiste { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.play { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--olive); cursor: pointer; }
+.play svg { width: 18px; height: 18px; fill: var(--creme); }
+.play .pause, .play.laeuft .dreieck { display: none; }
+.play.laeuft .pause { display: block; }
+.zeit { flex: none; min-width: 92px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.spur { position: relative; flex: 1; height: 28px; }
+.spur-grund, .spur-voll { position: absolute; top: 12px; left: 0; height: 4px; border-radius: 2px; }
+.spur-grund { right: 0; background: var(--sand-2); }
+.spur-voll { width: 0; background: var(--rinde); }
+.marke { position: absolute; top: 9px; height: 10px; border-radius: 3px; background: var(--olive); opacity: .45; }
+.spur input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.spur-knopf { position: absolute; top: 7px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--rinde); pointer-events: none; }
+.schalter { flex: none; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; }
+.schalter input { position: absolute; opacity: 0; }
+.schalter i { position: relative; width: 40px; height: 24px; border-radius: 12px; background: var(--sand-2); transition: background .2s; }
+.schalter i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.schalter input:checked + i { background: var(--olive); }
+.schalter input:checked + i::after { transform: translateX(16px); }
+.schalter input:focus-visible + i { outline: 2px solid var(--rinde); outline-offset: 2px; }
+.voll-knopf { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; cursor: pointer; }
+.voll-knopf svg { width: 20px; height: 20px; fill: none; stroke: var(--rinde); stroke-width: 2; }
+
+.stellen-titel { margin: 44px 0 14px; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
+.stellen { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 32px; margin: 0; padding: 0; list-style: none; }
+.stellen button {
+  display: grid; grid-template-columns: 52px 1fr; align-items: baseline; width: 100%; padding: 14px 0; border: 0;
+  border-top: 1px solid var(--sand-2); background: none; text-align: left; cursor: pointer;
+}
+.stellen button:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.stellen span { color: var(--grau); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stellen b { font-size: 16px; font-weight: 700; }
+.stellen button.jetzt b { color: var(--olive); }
+.fuss { margin: 40px 0 0; color: var(--grau); font-size: 13px; font-weight: 500; line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .seite { padding: 28px 16px 56px; }
+  .kopf { grid-template-columns: 1fr; }
+  .rahmen { border-radius: 12px; }
+  .leiste { flex-wrap: wrap; gap: 10px 14px; }
+  .spur { order: 5; flex-basis: 100%; }
+  .schalter { margin-left: auto; }
+  .voll-knopf { display: none; }
+  .knopf-gross { padding: 14px 22px 14px 18px; font-size: 16px; }
+}
+
+/* ---------- Bühne: 1920 × 1080, wird auf die Playergröße skaliert ---------- */
+.buehne-halter { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.buehne { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; color: var(--rinde); }
+.sc { position: absolute; inset: 0; overflow: hidden; }
+.sc[hidden] { display: none; }
+.m { display: block; overflow: hidden; padding-bottom: .14em; margin-bottom: -.14em; }
+.m > span { display: block; transform: translateY(125%); }
+.stapel { display: grid; }
+.stapel > span { grid-area: 1 / 1; }
+.pop { transform-box: fill-box; transform-origin: center; }
+svg.voll { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
+.flat { height: .74em; width: auto; margin: 0 .02em 0 .01em; fill: currentColor; vertical-align: 0; }
+
+/* Handpan als Linie (Titel) und als Fläche (Kapitel, Karte) */
+.hp-linie .hp-koerper { fill: none; stroke: var(--gold); stroke-width: 3; }
+.hp-linie .hp-feld { fill: none; stroke: var(--gold); stroke-width: 2.4; }
+.hp-linie .hp-ding { fill: var(--gold); }
+.hp-flach .hp-koerper { fill: var(--sand); }
+.hp-flach .hp-ding, .hp-flach .hp-feld { fill: var(--sand-2); }
+.hp-zahl { fill: rgba(43, 37, 32, .55); font-size: 26px; font-weight: 700; }
+
+/* 1 Titel */
+.t-text { position: absolute; left: 200px; top: 300px; color: var(--creme); }
+#t-gross { font-size: 280px; font-weight: 800; letter-spacing: -.05em; line-height: .9; }
+.t-unter { font-size: 64px; font-weight: 600; letter-spacing: -.02em; line-height: 1.12; opacity: .86; }
+.t-abstand { margin-top: 46px; }
+
+/* 2 Vom 3-3-2 zum 3-2-3 */
+.mu-text { position: absolute; left: 200px; top: 110px; }
+.mu-klein { font-size: 56px; font-weight: 600; color: var(--olive); letter-spacing: -.02em; }
+.mu-gross { margin-top: 6px; font-size: 230px; font-weight: 800; letter-spacing: -.05em; line-height: .9; }
+.mu-linie { fill: var(--olive-tief); }
+.mu-zahl { fill: var(--rinde); font-size: 72px; font-weight: 800; }
+
+/* 3 Heute im Video */
+.he-text { position: absolute; left: 200px; top: 160px; color: var(--creme); }
+.he-klein { font-size: 52px; font-weight: 600; opacity: .62; letter-spacing: -.02em; margin-bottom: 26px; }
+.he-wort { font-size: 180px; font-weight: 800; letter-spacing: -.045em; line-height: .96; }
+
+/* 4 Titel zum Vorspiel */
+.einmal { position: absolute; left: 96px; top: 96px; padding: 30px 46px 38px 44px; border-radius: 24px; background: var(--olive); color: var(--creme); }
+.ei-klein { font-size: 28px; font-weight: 600; opacity: .8; }
+.ei-gross { margin-top: 4px; font-size: 72px; font-weight: 800; letter-spacing: -.035em; line-height: 1; }
+
+/* 5 Kapitel */
+.ka-text { position: absolute; left: 200px; top: 250px; }
+.ka-klein { font-size: 56px; font-weight: 600; color: var(--olive); letter-spacing: -.02em; margin-bottom: 18px; }
+.ka-gross { font-size: 210px; font-weight: 800; letter-spacing: -.05em; line-height: .92; }
+
+/* 6 + 7 Karten rechts im Bild */
+.karte {
+  position: absolute; left: 1392px; width: 448px; padding: 40px 44px 44px; border-radius: 32px;
+  background: var(--creme); box-shadow: 0 26px 60px -26px rgba(20, 14, 8, .6);
+}
+.k-kopf { font-size: 28px; font-weight: 700; color: var(--olive); letter-spacing: -.01em; }
+.k-pan { display: block; width: 360px; height: 360px; margin: 20px 0 24px; overflow: visible; }
+.k-unter { font-size: 30px; font-weight: 600; color: var(--grau); }
+.k-unter .teil { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
+.k-unter .teil > span { display: inline-block; transform: translateY(125%); }
+.k-gross { margin-top: 4px; font-size: 100px; font-weight: 800; letter-spacing: -.04em; line-height: 1; color: var(--olive); }
+
+.raster { display: grid; gap: 22px; margin-top: 26px; }
+.reihe { display: flex; gap: 24px; }
+.zelle {
+  position: relative; width: 104px; height: 104px; border-radius: 24px; background: var(--sand);
+  display: grid; grid-template-rows: 1fr auto; justify-items: center; padding: 12px 6px 14px;
+}
+.zelle b { align-self: center; font-size: 46px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.zelle .m { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<main class="seite">
+  <header class="kopf">
+    <div>
+      <small>B-Roll-Demo · Bukkador Handpan</small>
+      <h1>Polyrhythmus und 323er Pattern</h1>
+    </div>
+    <p>Die ersten zwei Minuten des Tutorials mit animierten Einblendungen. Bitte mit Ton ansehen, die Einblendungen laufen synchron zum Video.</p>
+  </header>
+
+  <div class="rahmen" id="rahmen">
+    <div class="bild" id="bild">
+      <div id="yt"></div>
+
+      <div class="buehne-halter">
+        <div class="buehne" id="buehne">
+
+          <section class="sc" id="s-titel" hidden style="background: var(--olive)">
+            <svg class="voll" viewBox="0 0 1920 1080"><g transform="translate(1480 540) scale(2.15)"><g id="t-pan" class="hp-linie" transform="rotate(0)"></g></g></svg>
+            <div class="t-text">
+              <span class="m"><span id="t-gross">Teil 2</span></span>
+              <span class="m t-unter t-abstand"><span id="t-u1">Polyrhythmus und</span></span>
+              <span class="m t-unter"><span id="t-u2">das 3-2-3-Pattern</span></span>
+            </div>
+          </section>
+
+          <section class="sc" id="s-muster" hidden style="background: var(--creme)">
+            <div class="mu-text">
+              <span class="m stapel mu-klein"><span id="mu-k1">Letztes Mal</span><span id="mu-k2">Heute</span></span>
+              <span class="m stapel mu-gross"><span id="mu-g1">3-3-2</span><span id="mu-g2">3-2-3</span></span>
+            </div>
+            <svg class="voll" id="mu-svg" viewBox="0 0 1920 1080"></svg>
+          </section>
+
+          <section class="sc" id="s-heute" hidden style="background: var(--rinde)">
+            <div class="he-text">
+              <span class="m he-klein"><span id="he-k">Heute im Video</span></span>
+              <span class="m he-wort"><span id="he-w1">Akkorde.</span></span>
+              <span class="m he-wort"><span id="he-w2">Melodie.</span></span>
+              <span class="m he-wort"><span id="he-w3">Rhythmus.</span></span>
+            </div>
+          </section>
+
+          <section class="sc" id="s-einmal" hidden>
+            <div class="einmal" id="ei-block">
+              <span class="m ei-klein"><span id="ei-k">Einmal komplett gespielt</span></span>
+              <span class="m ei-gross"><span id="ei-g">Das 3-2-3-Pattern</span></span>
+            </div>
+          </section>
+
+          <section class="sc" id="s-kapitel" hidden style="background: var(--creme)">
+            <div class="ka-text">
+              <span class="m ka-klein"><span id="ka-k">Schritt 1</span></span>
+              <span class="m ka-gross"><span id="ka-g1">Die</span></span>
+              <span class="m ka-gross"><span id="ka-g2">Akkorde.</span></span>
+            </div>
+            <svg class="voll" viewBox="0 0 1920 1080"><g transform="translate(1520 540) scale(1.35)"><g id="ka-pan" class="hp-flach"></g></g></svg>
+          </section>
+
+          <section class="sc" id="s-akkorde" hidden>
+            <div class="karte" id="ak-karte" style="top: 196px">
+              <span class="m stapel k-kopf" id="ak-kopf"></span>
+              <svg class="k-pan" viewBox="-200 -200 400 400"><g id="ak-pan" class="hp-flach"></g></svg>
+              <span class="m stapel k-unter" id="ak-unter"></span>
+              <span class="m stapel k-gross" id="ak-gross"></span>
+            </div>
+          </section>
+
+          <section class="sc" id="s-pattern" hidden>
+            <div class="karte" id="pa-karte" style="top: 280px">
+              <span class="m k-kopf"><span id="pa-kopf">Das 3-2-3-Pattern</span></span>
+              <div class="raster" id="pa-raster"></div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <button class="fang" id="fang" type="button" aria-label="Abspielen oder anhalten"></button>
+
+      <div class="start" id="start">
+        <button class="knopf-gross" id="start-knopf" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
+          Demo abspielen
+        </button>
+        <p>Etwa 2 Minuten, mit Ton</p>
+      </div>
+
+      <div class="ende" id="ende" hidden>
+        <p style="font-size: 22px; font-weight: 800; letter-spacing: -.02em">Ende der Demo</p>
+        <div class="reihe">
+          <button class="knopf-gross" id="nochmal" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
+            Nochmal ansehen
+          </button>
+          <button class="knopf-flach" id="vergleich" type="button">Ohne Einblendungen vergleichen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="leiste">
+    <button class="play" id="play" type="button" aria-label="Abspielen oder anhalten">
+      <svg class="dreieck" viewBox="0 0 24 24"><path d="M6 3.8v16.4a1 1 0 0 0 1.5.86l13.7-8.2a1 1 0 0 0 0-1.72L7.5 2.94A1 1 0 0 0 6 3.8Z"/></svg>
+      <svg class="pause" viewBox="0 0 24 24"><rect x="5" y="3" width="5" height="18" rx="1.5"/><rect x="14" y="3" width="5" height="18" rx="1.5"/></svg>
+    </button>
+    <span class="zeit" id="zeit">0:00 / 2:15</span>
+    <div class="spur" id="spur">
+      <div class="spur-grund"></div>
+      <div id="marken"></div>
+      <div class="spur-voll" id="spur-voll"></div>
+      <div class="spur-knopf" id="spur-knopf" style="left: 0"></div>
+      <input type="range" id="regler" min="0" max="135" step="0.05" value="0" aria-label="Position im Video">
+    </div>
+    <label class="schalter"><input type="checkbox" id="broll" checked><i></i>Einblendungen</label>
+    <button class="voll-knopf" id="voll" type="button" aria-label="Vollbild">
+      <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+  </div>
+
+  <h2 class="stellen-titel">Die Einblendungen</h2>
+  <ol class="stellen" id="stellen"></ol>
+
+  <p class="fuss">Entwurf von SideTwo, nur zur Ansicht. Video und Ton: Bukkador Handpan auf YouTube. Die Einblendungen liegen über dem Video, im fertigen Schnitt wären sie Teil der Videodatei.</p>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const VIDEO_ID = 'QBxUPMaK8RU';
+const DEMO_ENDE = 135;
+
+// ---------- Zeit-Helfer: jede Szene ist eine reine Funktion der Videozeit t ----------
+const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const prog = (t, a, d) => clamp01((t - a) / d);
+const expo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+const cubicIn = (x) => x * x * x;
+const cubicOut = (x) => 1 - Math.pow(1 - x, 3);
+const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+// Schrift steigt aus ihrer Maske auf (ab t0) und verschwindet nach oben (ab t1)
+function maske(el, t, t0, t1 = Infinity, d0 = 0.6, d1 = 0.32) {
+  const rein = 1 - expo(prog(t, t0, d0));
+  const raus = cubicIn(prog(t, t1, d1));
+  el.style.transform = `translateY(${((rein - raus) * 125).toFixed(2)}%)`;
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const FLAT = '<svg class="flat" viewBox="0 0 49 100" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h10v57c8-7 17-11 24-11 9 0 15 6 15 15 0 14-15 27-39 39H0z M10 92c15-8 26-18 26-29 0-6-3-9-8-9-6 0-12 4-18 11z"/></svg>';
+
+// ---------- Handpan von oben, wie im Video: Spielerseite unten, Tonfeld 1 unten mittig,
+// gerade Felder links, ungerade rechts (aus der Aufsicht ab 1:01 abgelesen) ----------
+const FELDER = [
+  { n: 1, a: 90, r: 34 }, { n: 2, a: 136, r: 32 }, { n: 3, a: 44, r: 32 },
+  { n: 4, a: 180, r: 29 }, { n: 5, a: 0, r: 29 }, { n: 6, a: 222, r: 26 },
+  { n: 7, a: 318, r: 26 }, { n: 8, a: 257, r: 23 }, { n: 9, a: 283, r: 23 },
+];
+function handpan(g, { zahlen = true } = {}) {
+  const koerper = svgEl('circle', { r: 186, class: 'hp-koerper pop', pathLength: 1 }, g);
+  const ding = svgEl('circle', { r: 50, class: 'hp-ding pop' }, g);
+  const felder = FELDER.map((f) => {
+    const w = (f.a * Math.PI) / 180;
+    const aussen = svgEl('g', { transform: `translate(${(Math.cos(w) * 134).toFixed(1)} ${(Math.sin(w) * 134).toFixed(1)})` }, g);
+    const innen = svgEl('g', { class: 'pop' }, aussen);
+    const kreis = svgEl('circle', { r: f.r, class: 'hp-feld' }, innen);
+    let zahl = null;
+    if (zahlen) {
+      zahl = svgEl('text', { class: 'hp-zahl', 'text-anchor': 'middle', 'dominant-baseline': 'central' }, innen);
+      zahl.textContent = f.n;
+    }
+    return { ...f, innen, kreis, zahl };
+  });
+  return { koerper, ding, felder };
+}
+const skal = (el, s) => { el.style.transform = `scale(${s.toFixed(4)})`; };
+
+// ---------- 1 · Titelkarte (0:01,9) ----------
+const T = { pan: handpan($('#t-pan'), { zahlen: false }) };
+T.pan.koerper.style.strokeDasharray = '1';
+T.pan.koerper.style.transform = 'rotate(-90deg)'; // Linie beginnt oben
+function zTitel(t) {
+  maske($('#t-gross'), t, 1.95);
+  maske($('#t-u1'), t, 2.55);
+  maske($('#t-u2'), t, 2.7);
+  T.pan.koerper.style.strokeDashoffset = (1 - inOut(prog(t, 1.95, 1.1))).toFixed(4);
+  skal(T.pan.ding, expo(prog(t, 2.85, 0.6)));
+  // Felder in Tonfolge 1 → 9
+  T.pan.felder.forEach((f, i) => skal(f.innen, expo(prog(t, 3.15 + i * 0.1, 0.5))));
+}
+
+// ---------- 2 · Vom 3-3-2 zum 3-2-3 (0:07) ----------
+const MU = (() => {
+  const svg = $('#mu-svg');
+  const X0 = 256, Y = 640;
+  const basis = [0, 160, 320, 600, 760, 920, 1200, 1360].map((x) => X0 + x);
+  const gruppe = [0, 0, 0, 1, 1, 1, 2, 2];
+  const akzent = [1, 0, 0, 1, 0, 0, 1, 0];
+  const klammern = [[0, 2, '3'], [3, 5, '3'], [6, 7, '2']].map(([a, b, z]) => {
+    const g = svgEl('g', {}, svg);
+    const x1 = basis[a] - 44, x2 = basis[b] + 44;
+    const linie = svgEl('rect', { x: x1, y: 744, width: x2 - x1, height: 10, rx: 5, class: 'pop mu-linie' }, g);
+    const zahl = svgEl('text', { x: (x1 + x2) / 2, y: 846, 'text-anchor': 'middle', class: 'mu-zahl' }, g);
+    zahl.textContent = z;
+    return { g, linie, zahl };
+  });
+  const punkte = basis.map((x, i) => svgEl('circle', { cx: x, cy: Y, r: akzent[i] ? 56 : 44, class: 'pop' }, svg));
+  return { gruppe, akzent, klammern, punkte };
+})();
+function puls(t, start, folge, schritt = 0.2) {
+  const k = Math.floor((t - start) / schritt);
+  if (k < 0 || k >= folge.length) return null;
+  return { i: folge[k], seit: t - (start + k * schritt) };
+}
+function zMuster(t) {
+  maske($('#mu-k1'), t, 7.05, 11.55);
+  maske($('#mu-g1'), t, 7.15, 11.6);
+  maske($('#mu-k2'), t, 11.8);
+  maske($('#mu-g2'), t, 11.9);
+
+  // Umstellen: die Zweiergruppe springt über die hintere Dreiergruppe nach vorn
+  const p = inOut(prog(t, 11.5, 0.9));
+  const versatz = [[0, 0], [440 * p, 0], [-600 * p, -190 * Math.sin(Math.PI * p)]];
+  const a = puls(t, 7.7, [0, 1, 2, 3, 4, 5, 6, 7]) || puls(t, 12.9, [0, 1, 2, 6, 7, 3, 4, 5]);
+
+  MU.punkte.forEach((el, i) => {
+    const [dx, dy] = versatz[MU.gruppe[i]];
+    let s = expo(prog(t, 7.2 + i * 0.05, 0.45));
+    let farbe = MU.akzent[i] ? 'var(--olive)' : 'var(--sand-2)';
+    if (a && a.i === i) { s *= 1 + 0.24 * (1 - cubicOut(clamp01(a.seit / 0.3))); farbe = 'var(--rinde)'; }
+    el.style.fill = farbe;
+    el.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${s.toFixed(4)})`;
+  });
+  MU.klammern.forEach((k, j) => {
+    const [dx, dy] = versatz[j];
+    k.g.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+    k.linie.style.transform = `scaleX(${expo(prog(t, 9.3 + j * 0.12, 0.5)).toFixed(4)})`;
+    const z = expo(prog(t, 9.45 + j * 0.12, 0.5));
+    k.zahl.style.opacity = z.toFixed(3);
+    k.zahl.style.transform = `translateY(${((1 - z) * 40).toFixed(1)}px)`;
+  });
+}
+
+// ---------- 3 · Heute im Video (0:20) — jedes Wort, wenn er es sagt ----------
+const HE = [[$('#he-w1'), 20.72], [$('#he-w2'), 21.64], [$('#he-w3'), 22.6]];
+function zHeute(t) {
+  maske($('#he-k'), t, 20.35);
+  HE.forEach(([el, t0], i) => {
+    maske(el, t, t0);
+    const naechstes = HE[i + 1] ? HE[i + 1][1] : Infinity;
+    el.style.color = t < naechstes ? 'var(--gold)' : 'var(--creme)';
+  });
+}
+
+// ---------- 4 · Titel zum Vorspiel (0:31) ----------
+function zEinmal(t) {
+  const rein = expo(prog(t, 31.0, 0.6));
+  const raus = cubicIn(prog(t, 35.1, 0.4));
+  $('#ei-block').style.clipPath = `inset(0 ${((1 - rein) * 100).toFixed(2)}% 0 ${(raus * 100).toFixed(2)}% round 24px)`;
+  maske($('#ei-k'), t, 31.15);
+  maske($('#ei-g'), t, 31.25);
+}
+
+// ---------- 5 · Kapitelkarte (0:58) ----------
+const KA = handpan($('#ka-pan'));
+function zKapitel(t) {
+  maske($('#ka-k'), t, 57.95);
+  maske($('#ka-g1'), t, 58.05);
+  maske($('#ka-g2'), t, 58.15);
+  skal(KA.koerper, expo(prog(t, 58.0, 0.7)));
+  skal(KA.ding, expo(prog(t, 58.25, 0.5)));
+  KA.felder.forEach((f, i) => skal(f.innen, expo(prog(t, 58.35 + i * 0.06, 0.5))));
+}
+
+// ---------- 6 · Akkorde von oben (1:01) — Tonfelder leuchten, wenn er sie nennt ----------
+const AK = handpan($('#ak-pan'));
+const AKKORDE = [
+  { felder: { 2: 69.96, 4: 70.8 }, teilA: 'Tonfeld 2', teilB: '+ 4', noten: `B${FLAT} + D`, ta: 69.96, tb: 70.8, tc: 72.4, raus: 74.6 },
+  { felder: { 3: 76.12, 5: 77.68 }, teilA: 'Tonfeld 3', teilB: '+ 5', noten: 'C + E', ta: 76.12, tb: 77.68, tc: 79.08, raus: 81.0 },
+  { felder: { 1: 82.4, 4: 83.8 }, teilA: 'Tonfeld 1', teilB: '+ 4', noten: 'A + D', ta: 82.4, tb: 83.8, tc: 85.3, raus: Infinity },
+];
+const AK_KOPF = [['Die Tonfelder', 61.8, 69.36], ['Akkord 1', 69.36, 75.12], ['Akkord 2', 75.12, 81.64], ['Akkord 3', 81.64, Infinity]];
+AK_KOPF.forEach(([text]) => { const s = document.createElement('span'); s.textContent = text; $('#ak-kopf').appendChild(s); });
+AKKORDE.forEach((c) => {
+  const u = document.createElement('span');
+  u.innerHTML = `<span class="teil"><span>${c.teilA}</span></span><span class="teil"><span>&nbsp;${c.teilB}</span></span>`;
+  $('#ak-unter').appendChild(u);
+  const g = document.createElement('span');
+  g.innerHTML = c.noten;
+  $('#ak-gross').appendChild(g);
+});
+function karteSchieben(el, t, rein, raus = Infinity) {
+  const x = (1 - expo(prog(t, rein, 0.7))) * 560 + cubicIn(prog(t, raus, 0.4)) * 560;
+  el.style.transform = `translateX(${x.toFixed(1)}px)`;
+}
+function zAkkorde(t) {
+  karteSchieben($('#ak-karte'), t, 61.5, 88.0);
+  [...$('#ak-kopf').children].forEach((el, i) => maske(el, t, AK_KOPF[i][1], AK_KOPF[i][2]));
+  const unter = [...$('#ak-unter').children], gross = [...$('#ak-gross').children];
+  AKKORDE.forEach((c, i) => {
+    maske(unter[i], t, c.ta, c.raus);
+    const [a, b] = unter[i].querySelectorAll('.teil > span');
+    a.style.transform = 'none';
+    maske(b, t, c.tb);
+    maske(gross[i], t, c.tc, c.raus);
+  });
+  skal(AK.ding, expo(prog(t, 61.75, 0.5)));
+  AK.felder.forEach((f, i) => {
+    let s = expo(prog(t, 61.85 + i * 0.04, 0.5));
+    let an = null;
+    for (const c of AKKORDE) { const tf = c.felder[f.n]; if (tf !== undefined && t >= tf && t < c.raus) an = tf; }
+    if (an !== null) s *= 1 + 0.18 * (1 - cubicOut(prog(t, an, 0.4)));
+    f.kreis.style.fill = an !== null ? 'var(--olive)' : '';
+    f.zahl.style.fill = an !== null ? 'var(--creme)' : '';
+    f.zahl.style.opacity = expo(prog(t, 66.76 + i * 0.05, 0.4)).toFixed(3);
+    skal(f.innen, s);
+  });
+}
+
+// ---------- 7 · Das Pattern zum Mitzählen (1:29) ----------
+const ART = {
+  akkord: { name: 'Akkord', bg: 'var(--olive)', fg: 'var(--creme)' },
+  ghost: { name: 'Ghost', bg: 'var(--sand-2)', fg: 'var(--rinde)' },
+  mute: { name: 'Mute', bg: 'var(--rinde)', fg: 'var(--creme)' },
+  slap: { name: 'Slap', bg: 'var(--gold)', fg: 'var(--rinde)' },
+};
+// Wann er welchen Schlag erklärt (Zeiten aus den Untertiteln)
+const SCHLAEGE = [
+  { zahl: 1, art: 'akkord', t: 94.28 }, { zahl: 2, art: 'ghost', t: 97.12 }, { zahl: 3, art: 'ghost', t: 97.4 },
+  { zahl: 1, art: 'mute', t: 100.6 }, { zahl: 2, art: 'slap', t: 101.68 },
+  { zahl: 1, art: 'ghost', t: 107.68 }, { zahl: 2, art: 'ghost', t: 107.9 }, { zahl: 3, art: 'ghost', t: 108.12 },
+];
+// Wann er zählt: „auf die 1 2“, zweimal vorn, zweimal von oben
+const ZAEHLEN = [
+  110.52, 111.2, 111.48, 112.0, 112.44, 112.84, 113.2, 113.84,
+  114.84, 115.72, 116.28, 116.96, 117.64, 118.2, 118.84, 119.32,
+  122.6, 123.44, 124.0, 124.68, 125.36, 125.96, 126.68, 127.68,
+  128.68, 129.64, 130.24, 130.84, 131.64, 132.08, 132.88, 133.55,
+];
+const TREFFER = [[103.6, 3], [104.36, 4], ...ZAEHLEN.map((z, k) => [z, k % 8])];
+const ZELLEN = (() => {
+  const zellen = [];
+  [[0, 1, 2], [3, 4], [5, 6, 7]].forEach((reihe) => {
+    const r = document.createElement('div');
+    r.className = 'reihe';
+    reihe.forEach((i) => {
+      const s = SCHLAEGE[i];
+      const z = document.createElement('div');
+      z.className = 'zelle';
+      z.innerHTML = `<b>${s.zahl}</b><span class="m"><span>${ART[s.art].name}</span></span>`;
+      r.appendChild(z);
+      zellen[i] = { el: z, zahl: z.querySelector('b'), lab: z.querySelector('.m > span'), ...s };
+    });
+    $('#pa-raster').appendChild(r);
+  });
+  return zellen;
+})();
+function zPattern(t) {
+  karteSchieben($('#pa-karte'), t, 89.2);
+  maske($('#pa-kopf'), t, 89.45);
+  let treffer = null;
+  for (const [tt, i] of TREFFER) if (t >= tt && t - tt < 1.2) treffer = { i, tt };
+  ZELLEN.forEach((z, i) => {
+    const gesetzt = t >= z.t;
+    const art = ART[z.art];
+    z.el.style.background = gesetzt ? art.bg : '';
+    z.el.style.color = gesetzt ? art.fg : 'rgba(43, 37, 32, .32)';
+    maske(z.lab, t, z.t, Infinity, 0.45);
+    let s = expo(prog(t, 89.55 + i * 0.05, 0.5));
+    let schlag = gesetzt ? z.t : -1;
+    const aktiv = treffer && treffer.i === i;
+    if (aktiv) schlag = Math.max(schlag, treffer.tt);
+    if (schlag >= 0) s *= 1 + 0.12 * (1 - cubicOut(prog(t, schlag, 0.35)));
+    z.el.style.transform = `scale(${s.toFixed(4)})`;
+    z.el.style.boxShadow = aktiv ? '0 0 0 5px var(--creme), 0 0 0 10px var(--rinde)' : 'none';
+  });
+}
+
+// ---------- Szenenplan ----------
+const SZENEN = [
+  { id: 's-titel', von: 1.9, bis: 5.4, name: 'Titelkarte', z: zTitel },
+  { id: 's-muster', von: 7.0, bis: 15.0, name: 'Vom 3-3-2 zum 3-2-3', z: zMuster },
+  { id: 's-heute', von: 20.3, bis: 24.7, name: 'Heute im Video', z: zHeute },
+  { id: 's-einmal', von: 31.0, bis: 35.6, name: 'Titel zum Vorspiel', z: zEinmal },
+  { id: 's-kapitel', von: 57.9, bis: 61.3, name: 'Kapitelkarte', z: zKapitel },
+  { id: 's-akkorde', von: 61.5, bis: 88.45, name: 'Akkorde von oben', z: zAkkorde },
+  { id: 's-pattern', von: 89.2, bis: DEMO_ENDE + 0.3, name: 'Das Pattern zum Mitzählen', z: zPattern },
+].map((s) => ({ ...s, el: document.getElementById(s.id) }));
+
+let brollAn = true;
+function zeichne(t) {
+  for (const s of SZENEN) {
+    const an = brollAn && t >= s.von && t < s.bis;
+    if (s.el.hidden === an) s.el.hidden = !an;
+    if (an) s.z(t);
+  }
+}
+
+// ---------- Bühne auf Playergröße skalieren ----------
+const buehne = $('#buehne');
+new ResizeObserver(([e]) => {
+  buehne.style.transform = `scale(${e.contentRect.width / 1920})`;
+}).observe($('#bild'));
+
+// ---------- YouTube-Player und Uhr ----------
+let player = null, bereit = false, gestartet = false, ziehen = false, beendet = false;
+let meldung = -1, meldungUm = 0, tZuletzt = 0;
+const PLAYING = 1;
+
+window.onYouTubeIframeAPIReady = () => {
+  player = new YT.Player('yt', {
+    videoId: VIDEO_ID,
+    host: 'https://www.youtube-nocookie.com',
+    playerVars: { controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, origin: location.origin },
+    events: {
+      onReady: () => { bereit = true; },
+      onStateChange: (e) => {
+        $('#play').classList.toggle('laeuft', e.data === PLAYING);
+        // Untertitel würden unter den Einblendungen liegen – auch wenn der Zuschauer sie sonst anhat
+        if (e.data === PLAYING) try { player.unloadModule('captions'); } catch (_) {}
+      },
+    },
+  });
+};
+
+// Der Player meldet seine Zeit nur in Abständen; dazwischen wird weitergezählt.
+function videoZeit() {
+  if (!bereit || !player.getCurrentTime) return 0;
+  const r = player.getCurrentTime() || 0;
+  const jetzt = performance.now();
+  if (r !== meldung) { meldung = r; meldungUm = jetzt; }
+  if (player.getPlayerState() !== PLAYING) return r;
+  const t = r + Math.min(0.5, (jetzt - meldungUm) / 1000) * (player.getPlaybackRate() || 1);
+  return t < tZuletzt && tZuletzt - t < 0.15 ? tZuletzt : t;
+}
+
+const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const regler = $('#regler');
+function leiste(t) {
+  const q = Math.min(1, t / DEMO_ENDE) * 100;
+  $('#spur-voll').style.width = q + '%';
+  $('#spur-knopf').style.left = q + '%';
+  if (!ziehen) regler.value = t;
+  $('#zeit').textContent = `${fmt(Math.min(t, DEMO_ENDE))} / ${fmt(DEMO_ENDE)}`;
+  document.querySelectorAll('.stellen button').forEach((b, i) => b.classList.toggle('jetzt', brollAn && t >= SZENEN[i].von && t < SZENEN[i].bis));
+}
+
+function schleife() {
+  let t;
+  if (!gestartet) t = 5.2; // Vorschaubild: die fertige Titelkarte
+  else if (ziehen) t = parseFloat(regler.value);
+  else t = videoZeit();
+  tZuletzt = t;
+  zeichne(t);
+  if (gestartet) leiste(t);
+  if (gestartet && !ziehen && !beendet && t >= DEMO_ENDE) {
+    beendet = true;
+    player.pauseVideo();
+    $('#ende').hidden = false;
+  }
+  requestAnimationFrame(schleife);
+}
+requestAnimationFrame(schleife);
+
+function springe(s) {
+  if (!bereit) return;
+  beendet = false;
+  $('#ende').hidden = true;
+  player.seekTo(s, true);
+  tZuletzt = s;
+}
+function starte() {
+  if (!bereit) return;
+  if (!gestartet) {
+    gestartet = true;
+    $('#start').hidden = true;
+    player.seekTo(0, true); // YouTube merkt sich sonst die letzte Position
+  }
+  player.unMute();
+  player.playVideo();
+}
+function umschalten() {
+  if (!bereit) return;
+  if (!gestartet || beendet) { if (beendet) springe(0); starte(); return; }
+  player.getPlayerState() === PLAYING ? player.pauseVideo() : player.playVideo();
+}
+
+$('#start-knopf').addEventListener('click', starte);
+$('#fang').addEventListener('click', umschalten);
+$('#play').addEventListener('click', umschalten);
+$('#nochmal').addEventListener('click', () => { springe(0); starte(); });
+$('#vergleich').addEventListener('click', () => {
+  $('#broll').checked = false; brollAn = false;
+  springe(0); starte();
+});
+$('#broll').addEventListener('change', (e) => { brollAn = e.target.checked; });
+regler.addEventListener('input', () => {
+  if (!bereit) return;
+  if (!gestartet) { gestartet = true; $('#start').hidden = true; }
+  ziehen = true;
+  beendet = false;
+  $('#ende').hidden = true;
+  player.seekTo(parseFloat(regler.value), false);
+});
+regler.addEventListener('change', () => { ziehen = false; springe(parseFloat(regler.value)); });
+$('#voll').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else $('#rahmen').requestFullscreen?.();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !['INPUT', 'BUTTON'].includes(document.activeElement.tagName)) { e.preventDefault(); umschalten(); }
+});
+
+// Marken auf der Zeitleiste und Sprungliste
+SZENEN.forEach((s) => {
+  const m = document.createElement('div');
+  m.className = 'marke';
+  m.style.left = (s.von / DEMO_ENDE) * 100 + '%';
+  m.style.width = ((Math.min(s.bis, DEMO_ENDE) - s.von) / DEMO_ENDE) * 100 + '%';
+  $('#marken').appendChild(m);
+  const li = document.createElement('li');
+  li.innerHTML = `<button type="button"><span>${fmt(s.von)}</span><b>${s.name}</b></button>`;
+  li.firstChild.addEventListener('click', () => {
+    if (!bereit) return;
+    $('#broll').checked = true; brollAn = true;
+    springe(Math.max(0, s.von - 1.5));
+    starte();
+    $('#rahmen').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  $('#stellen').appendChild(li);
+});
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
