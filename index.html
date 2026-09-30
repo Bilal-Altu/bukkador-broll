@@ -73,6 +73,18 @@ button { font: inherit; color: inherit; }
 .marke { position: absolute; top: 9px; height: 10px; border-radius: 3px; background: var(--olive); opacity: .45; }
 .spur input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .spur-knopf { position: absolute; top: 7px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--rinde); pointer-events: none; }
+.laut { flex: none; display: flex; align-items: center; gap: 6px; padding-left: 12px; border-left: 1px solid var(--sand-2); }
+.laut-knopf { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; cursor: pointer; }
+.laut-knopf svg { width: 22px; height: 22px; fill: var(--rinde); stroke: var(--rinde); stroke-width: 2; stroke-linecap: round; }
+.laut-knopf .aus, .laut-knopf.stumm .an { display: none; }
+.laut-knopf.stumm .aus { display: block; }
+.laut input {
+  width: 84px; height: 4px; margin: 0; border-radius: 2px; cursor: pointer; -webkit-appearance: none; appearance: none;
+  background: linear-gradient(to right, var(--rinde) var(--wert, 100%), var(--sand-2) var(--wert, 100%));
+}
+.laut input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--rinde); }
+.laut input::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: var(--rinde); }
+.laut input:focus-visible { outline: 2px solid var(--rinde); outline-offset: 6px; }
 .schalter { flex: none; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; }
 .schalter input { position: absolute; opacity: 0; }
 .schalter i { position: relative; width: 40px; height: 24px; border-radius: 12px; background: var(--sand-2); transition: background .2s; }
@@ -101,8 +113,11 @@ button { font: inherit; color: inherit; }
   .rahmen { border-radius: 12px; }
   .leiste { flex-wrap: wrap; gap: 10px 14px; }
   .spur { order: 5; flex-basis: 100%; }
-  .schalter { margin-left: auto; }
   .voll-knopf { display: none; }
+  /* Handy: Play, Zeit, Ton │ Zeitleiste │ Schalter – die Lautstärke regeln dort die Tasten */
+  .laut { order: 3; margin-left: auto; padding-left: 0; border-left: 0; }
+  .laut input { display: none; }
+  .schalter { order: 6; }
   .knopf-gross { padding: 14px 22px 14px 18px; font-size: 16px; }
 }
 
@@ -292,6 +307,13 @@ svg.voll { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow
       <input type="range" id="regler" min="0" max="135" step="0.05" value="0" aria-label="Position im Video">
     </div>
     <label class="schalter"><input type="checkbox" id="broll" checked><i></i>Einblendungen</label>
+    <div class="laut">
+      <button class="laut-knopf" id="laut-knopf" type="button" aria-label="Ton aus">
+        <svg class="an" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" stroke="none"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11" fill="none"/></svg>
+        <svg class="aus" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" stroke="none"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none"/></svg>
+      </button>
+      <input type="range" id="laut" min="0" max="100" step="1" value="100" aria-label="Lautstärke">
+    </div>
     <button class="voll-knopf" id="voll" type="button" aria-label="Vollbild">
       <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
     </button>
@@ -659,9 +681,36 @@ function starte() {
     $('#start').hidden = true;
     player.seekTo(0, true); // YouTube merkt sich sonst die letzte Position
   }
-  player.unMute();
+  tonAnwenden();
   player.playVideo();
 }
+
+// ---------- Lautstärke ----------
+const laut = $('#laut'), lautKnopf = $('#laut-knopf');
+let stumm = false;
+function tonAnwenden() {
+  if (!bereit) return;
+  const v = parseInt(laut.value, 10);
+  player.setVolume(v);
+  if (stumm || v === 0) player.mute(); else player.unMute();
+  const aus = stumm || v === 0;
+  lautKnopf.classList.toggle('stumm', aus);
+  lautKnopf.setAttribute('aria-label', aus ? 'Ton an' : 'Ton aus');
+  laut.style.setProperty('--wert', (aus ? 0 : v) + '%');
+}
+laut.addEventListener('input', () => {
+  stumm = parseInt(laut.value, 10) === 0;
+  tonAnwenden();
+});
+lautKnopf.addEventListener('click', () => {
+  if (stumm || laut.value === '0') {
+    stumm = false;
+    if (laut.value === '0') laut.value = 60;
+  } else {
+    stumm = true;
+  }
+  tonAnwenden();
+});
 function umschalten() {
   if (!bereit) return;
   if (!gestartet || beendet) { if (beendet) springe(0); starte(); return; }
